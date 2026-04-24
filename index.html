@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Military Strategy Creator</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Sidebar for Unit Management & Controls -->
+        <div id="sidebar">
+            <h2>Strategy Controls</h2>
+
+            <div class="panel">
+                <h3>Simulation Controls</h3>
+                <label>Mode:</label>
+                <select id="sim-mode">
+                    <option value="until-neutralized">Until Neutralized</option>
+                    <option value="time-limit">Time Limit</option>
+                </select>
+                <div id="time-limit-container" style="display:none; margin-top: 5px;">
+                    <label>Time Limit (Hours):</label>
+                    <input type="number" id="sim-time-limit" value="2" min="1" step="1">
+                </div>
+                <div class="button-group" style="margin-top: 10px;">
+                    <button id="btn-start-sim">Start Simulation</button>
+                    <button id="btn-stop-sim" disabled>Stop</button>
+                    <button id="btn-reset-sim">Reset</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>AI Prediction</h3>
+                <button id="btn-auto-place" class="action-btn">Predict Best Positions (Auto-Place)</button>
+                <button id="btn-suggest-adjustments" class="action-btn">Suggest Adjustments</button>
+            </div>
+
+            <div class="panel">
+                <h3>Unit Management</h3>
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="tab-place">Place Units</button>
+                    <button class="tab-btn" data-tab="tab-create">Custom Unit</button>
+                </div>
+
+                <div id="tab-place" class="tab-content active">
+                    <label>Faction:</label>
+                    <select id="select-faction">
+                        <option value="player">Player Army (Blue)</option>
+                        <option value="enemy">Enemy Army (Red)</option>
+                    </select>
+
+                    <label style="margin-top: 10px;">Unit Type:</label>
+                    <select id="select-unit-type">
+                        <!-- Populated dynamically via JS -->
+                    </select>
+
+                    <label style="margin-top: 10px;">Count (Cluster Size):</label>
+                    <input type="number" id="placement-count" value="1" min="1" max="50">
+
+                    <p class="help-text">Select faction, unit type, and count, then click on the map to place.</p>
+                </div>
+
+                <div id="tab-create" class="tab-content" style="display:none;">
+                    <form id="form-custom-unit">
+                        <input type="text" id="cu-name" placeholder="Unit Name" required>
+                        <label>Category:</label>
+                        <select id="cu-category">
+                            <option value="infantry">Infantry</option>
+                            <option value="vehicle">Vehicle</option>
+                            <option value="artillery">Artillery</option>
+                            <option value="aircraft">Aircraft</option>
+                        </select>
+                        <label>Armor Class:</label>
+                        <select id="cu-armor">
+                            <option value="unarmored">Unarmored</option>
+                            <option value="light">Light Armor</option>
+                            <option value="heavy">Heavy Armor</option>
+                        </select>
+                        <label>Weapon Lethality:</label>
+                        <select id="cu-weapon">
+                            <option value="small_arms">Small Arms</option>
+                            <option value="anti_armor">Anti-Armor</option>
+                            <option value="explosive">Explosive (Artillery)</option>
+                        </select>
+
+                        <label>Firing Range (m):</label>
+                        <input type="number" id="cu-range" value="500" required>
+
+                        <label>Detection Range (m):</label>
+                        <input type="number" id="cu-detection" value="1000" required>
+
+                        <label>Mobility (m/s):</label>
+                        <input type="number" id="cu-mobility" value="5" required>
+
+                        <label>Ammo Limit:</label>
+                        <input type="number" id="cu-ammo" value="100" required>
+
+                        <button type="submit" style="margin-top:10px; width: 100%;">Save to Predefined</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="panel" id="report-panel" style="display: none;">
+                <h3>After-Action Report</h3>
+                <div id="report-content"></div>
+                <button id="btn-close-report" style="margin-top:10px;">Close Report</button>
+            </div>
+
+        </div>
+
+        <!-- Main Map Area -->
+        <div id="map-container">
+            <canvas id="strategy-map"></canvas>
+        </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
