@@ -33,23 +33,37 @@ export function autoPlaceUnits() {
 
     // Flanks/Roads: Main Battle Tanks
     for(let i=0; i < Math.max(1, vehCount); i++) {
-        // Find nearest road to deployment
-        let road = mapData.roads[0];
-        let minD = Infinity;
-        mapData.roads.forEach(r => {
-            let d = Math.hypot(r.start.x - deployX, r.start.y - deployY);
-            if(d < minD) { minD = d; road = r; }
-        });
-        let rx = road.start.x + (road.end.x - road.start.x) * 0.1;
-        let ry = road.start.y + (road.end.y - road.start.y) * 0.1;
+        let rx = deployX + (Math.random()-0.5)*400;
+        let ry = deployY + (Math.random()-0.5)*400;
+
+        if (mapData.roads.length > 0) {
+            // Find nearest road to deployment
+            let road = mapData.roads[0];
+            let minD = Infinity;
+            mapData.roads.forEach(r => {
+                let d = Math.hypot(r.start.x - deployX, r.start.y - deployY);
+                if(d < minD) { minD = d; road = r; }
+            });
+            rx = road.start.x + (road.end.x - road.start.x) * 0.1;
+            ry = road.start.y + (road.end.y - road.start.y) * 0.1;
+        }
+
         newUnits.push(createUnitInstance('mbt', 'player', rx + (Math.random()-0.5)*200, ry + (Math.random()-0.5)*200));
     }
 
     // High Ground: Snipers and ATGM
     for(let i=0; i < 2; i++) {
-        let hill = mapData.hills.reduce((prev, curr) => curr.elevation > prev.elevation ? curr : prev); // Tallest hill
-        newUnits.push(createUnitInstance('sniper', 'player', hill.x + (Math.random()-0.5)*100, hill.y + (Math.random()-0.5)*100));
-        newUnits.push(createUnitInstance('anti_tank_team', 'player', hill.x + (Math.random()-0.5)*100, hill.y + (Math.random()-0.5)*100));
+        let hx = deployX + (Math.random()-0.5)*400;
+        let hy = deployY + (Math.random()-0.5)*400;
+
+        if (mapData.hills.length > 0) {
+            let hill = mapData.hills.reduce((prev, curr) => curr.elevation > prev.elevation ? curr : prev); // Tallest hill
+            hx = hill.x;
+            hy = hill.y;
+        }
+
+        newUnits.push(createUnitInstance('sniper', 'player', hx + (Math.random()-0.5)*100, hy + (Math.random()-0.5)*100));
+        newUnits.push(createUnitInstance('anti_tank_team', 'player', hx + (Math.random()-0.5)*100, hy + (Math.random()-0.5)*100));
     }
 
     // Rear: Artillery
@@ -79,7 +93,7 @@ export function suggestAdjustments() {
         // Artillery, Snipers & AA/MANPADS -> Seek High Ground
         if(u.category === UNIT_CATEGORIES.ARTILLERY || (u.weapon === WEAPON_TYPES.SMALL_ARMS && u.range > 1000) || u.weapon === WEAPON_TYPES.ANTI_AIR) {
             let currentElev = getElevationAt(u.x, u.y);
-            if(currentElev < 2) {
+            if(currentElev < 2 && mapData.hills.length > 0) {
                 let bestHill = mapData.hills.reduce((prev, curr) => {
                     // Score = Elevation / Distance
                     let s1 = curr.elevation / Math.max(1, Math.hypot(curr.x - u.x, curr.y - u.y));
@@ -94,7 +108,7 @@ export function suggestAdjustments() {
         }
 
         // Vehicles -> Seek Roads for Mobility if far from frontline
-        if(u.category === UNIT_CATEGORIES.VEHICLE) {
+        if(u.category === UNIT_CATEGORIES.VEHICLE && mapData.roads.length > 0) {
             let onRoad = mapData.roads.some(r => {
                 let l2 = Math.pow(r.start.x - r.end.x, 2) + Math.pow(r.start.y - r.end.y, 2);
                 if(l2===0) return false;

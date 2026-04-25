@@ -187,7 +187,7 @@ function simulationTick() {
     aliveUnits.forEach(unit => {
         if(unit.weapon === WEAPON_TYPES.NONE) return; // Unarmed units just spot
 
-        if(unit.state === 'idle' || unit.state === 'moving') {
+        if(unit.state === 'idle' || unit.state === 'searching' || unit.state === 'moving') {
             let enemies = aliveUnits.filter(e => e.faction !== unit.faction);
             let bestTarget = null;
             let minScore = Infinity; // Lower score = better target (distance / threat)
@@ -215,10 +215,43 @@ function simulationTick() {
             if(bestTarget) {
                 unit.targetId = bestTarget.id;
                 unit.state = 'engaging';
+            } else if (unit.state === 'idle') {
+                unit.state = 'searching';
             }
         }
 
-        if(unit.state === 'engaging') {
+        if(unit.state === 'searching') {
+            // Find general direction of nearest enemy (even outside detection range) to simulate advancing towards the front lines
+            let enemies = aliveUnits.filter(e => e.faction !== unit.faction);
+            if (enemies.length > 0) {
+                let nearestEnemy = null;
+                let minDist = Infinity;
+                enemies.forEach(enemy => {
+                    let dist = Math.hypot(enemy.x - unit.x, enemy.y - unit.y);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        nearestEnemy = enemy;
+                    }
+                });
+
+                if (nearestEnemy) {
+                    let dx = nearestEnemy.x - unit.x;
+                    let dy = nearestEnemy.y - unit.y;
+                    let len = Math.hypot(dx, dy);
+
+                    let terrSpeed = getTerrainSpeedModifier(unit.x, unit.y, unit.category);
+                    let suppSpeed = 1 - (unit.suppression * 0.5);
+
+                    // Advance at slightly reduced speed when searching to represent caution
+                    let searchSpeedMod = 0.7;
+
+                    unit.x += (dx / len) * unit.mobility * terrSpeed * suppSpeed * searchSpeedMod * dt;
+                    unit.y += (dy / len) * unit.mobility * terrSpeed * suppSpeed * searchSpeedMod * dt;
+                }
+            } else {
+                unit.state = 'idle';
+            }
+        } else if(unit.state === 'engaging') {
             let target = aliveUnits.find(u => u.id === unit.targetId);
             // If target lost or destroyed, return to idle
             if(!target || target.state === 'destroyed' || !checkLineOfSight(unit, target)) {
