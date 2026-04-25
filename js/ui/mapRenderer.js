@@ -5,6 +5,9 @@ import { selectedUnit } from './inputHandler.js';
 let canvas, ctx;
 export let camera = { x: 0, y: 0, zoom: 0.5 }; // Start zoomed out a bit
 
+let overlayImage = new Image();
+let currentOverlayDataURL = null;
+
 export function initMap() {
     canvas = document.getElementById('strategy-map');
     ctx = canvas.getContext('2d');
@@ -47,6 +50,25 @@ function render() {
     // Background
     ctx.fillStyle = '#2c3e50'; // Darker base for tactical look
     ctx.fillRect(0, 0, MAP_CONFIG.WIDTH, MAP_CONFIG.HEIGHT);
+
+    // Handle Overlay Image if present
+    if (mapData.backgroundImage) {
+        if (mapData.backgroundImage !== currentOverlayDataURL) {
+            overlayImage.src = mapData.backgroundImage;
+            currentOverlayDataURL = mapData.backgroundImage;
+        }
+
+        if (overlayImage.complete && overlayImage.naturalWidth > 0) {
+            // Draw image stretching to map bounds. (Alternatively could scale to fit, but streching to MAP_CONFIG bounds allows mapping entire scenario)
+            ctx.drawImage(overlayImage, 0, 0, MAP_CONFIG.WIDTH, MAP_CONFIG.HEIGHT);
+
+            // Add a slight dark tint over the image so UI elements pop more
+            ctx.fillStyle = 'rgba(44, 62, 80, 0.4)';
+            ctx.fillRect(0, 0, MAP_CONFIG.WIDTH, MAP_CONFIG.HEIGHT);
+        }
+    } else {
+        currentOverlayDataURL = null;
+    }
 
     // Grid (optional tactical feel)
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';

@@ -180,6 +180,30 @@ function setupControls() {
         });
     }
 
+    const fileMapOverlay = document.getElementById('file-map-overlay');
+    if(fileMapOverlay) {
+        fileMapOverlay.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    mapData.backgroundImage = event.target.result;
+                    // Trigger map render to show immediately by dispatching an event if needed,
+                    // but the render loop is running continuously so it will pick it up.
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    const btnClearOverlay = document.getElementById('btn-clear-overlay');
+    if(btnClearOverlay) {
+        btnClearOverlay.addEventListener('click', () => {
+            mapData.backgroundImage = null;
+            if(fileMapOverlay) fileMapOverlay.value = '';
+        });
+    }
+
     const btnClearMapData = document.getElementById('btn-clear-map-data');
     if(btnClearMapData) {
         btnClearMapData.addEventListener('click', () => {

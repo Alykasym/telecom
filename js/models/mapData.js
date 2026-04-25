@@ -7,6 +7,7 @@ export const MAP_CONFIG = {
 
 // Represents mutable terrain features
 export let mapData = {
+    backgroundImage: null, // Data URL of the overlay image
     hills: [
         // elevation represents height advantage (multiplier for LoS/Range)
         { x: 1500, y: 1500, radius: 400, elevation: 2 },

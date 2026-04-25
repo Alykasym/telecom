@@ -6,6 +6,7 @@ import { mapData } from '../models/mapData.js';
 export function exportScenario() {
     const data = {
         map: {
+            backgroundImage: mapData.backgroundImage,
             hills: mapData.hills,
             roads: mapData.roads
         },
@@ -62,6 +63,7 @@ export function importScenario(file) {
 
             // Load map
             if(data.map) {
+                mapData.backgroundImage = data.map.backgroundImage || null;
                 mapData.hills = data.map.hills || [];
                 mapData.roads = data.map.roads || [];
             }
