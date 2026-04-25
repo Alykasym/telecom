@@ -1,5 +1,6 @@
 import { MAP_CONFIG, mapData } from '../models/mapData.js';
 import { placedUnits } from '../models/unitDictionary.js';
+import { selectedUnit } from './inputHandler.js';
 
 let canvas, ctx;
 export let camera = { x: 0, y: 0, zoom: 0.5 }; // Start zoomed out a bit
@@ -153,6 +154,22 @@ function render() {
             ctx.arc(unit.x, unit.y, 25 + Math.random()*5, 0, Math.PI*2);
             ctx.fillStyle = `rgba(243, 156, 18, ${unit.suppression * 0.5})`;
             ctx.fill();
+        }
+
+        // Selection highlight
+        if(selectedUnit && selectedUnit.id === unit.id) {
+            ctx.beginPath();
+            ctx.arc(unit.x, unit.y, 24, 0, Math.PI * 2);
+            ctx.strokeStyle = '#f39c12'; // Yellow highlight
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Draw Range Circle for selected unit
+            ctx.beginPath();
+            ctx.arc(unit.x, unit.y, unit.range, 0, Math.PI * 2);
+            ctx.strokeStyle = unit.faction === 'player' ? 'rgba(52, 152, 219, 0.2)' : 'rgba(231, 76, 60, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
         }
 
         // Base disk

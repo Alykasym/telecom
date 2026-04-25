@@ -1,7 +1,9 @@
 import { unitTemplates, addCustomUnitTemplate, UNIT_CATEGORIES, WEAPON_TYPES, ARMOR_CLASSES } from '../models/unitDictionary.js';
-import { setPlacementMode, setSelectedTemplate, setSelectedFaction, setPlacementCount } from './inputHandler.js';
+import { setPlacementMode, setSelectedTemplate, setSelectedFaction, setPlacementCount, setPlacementFormation, setActiveMapTool } from './inputHandler.js';
+import { mapData } from '../models/mapData.js';
 import { autoPlaceUnits, suggestAdjustments } from '../core/ai.js';
 import { startSimulation, stopSimulation, resetSimulation } from '../core/simulation.js';
+import { exportScenario, importScenario } from '../core/dataManager.js';
 
 export function initUI() {
     setupTabs();
@@ -59,6 +61,11 @@ function setupForms() {
     const countInput = document.getElementById('placement-count');
     if(countInput) {
         countInput.addEventListener('change', (e) => setPlacementCount(parseInt(e.target.value) || 1));
+    }
+
+    const formationInput = document.getElementById('placement-formation');
+    if(formationInput) {
+        formationInput.addEventListener('change', (e) => setPlacementFormation(e.target.value));
     }
 
     const customUnitForm = document.getElementById('form-custom-unit');
@@ -128,6 +135,26 @@ function setupControls() {
     const btnSuggest = document.getElementById('btn-suggest-adjustments');
     if (btnSuggest) btnSuggest.addEventListener('click', suggestAdjustments);
 
+    // Data Management (Import / Export)
+    const btnExport = document.getElementById('btn-export-scenario');
+    if (btnExport) btnExport.addEventListener('click', exportScenario);
+
+    const btnImport = document.getElementById('btn-import-scenario');
+    const fileImport = document.getElementById('file-import');
+
+    if (btnImport && fileImport) {
+        btnImport.addEventListener('click', () => {
+            fileImport.click();
+        });
+        fileImport.addEventListener('change', (e) => {
+            if(e.target.files.length > 0) {
+                importScenario(e.target.files[0]);
+                // reset file input
+                e.target.value = '';
+            }
+        });
+    }
+
     // Map hover to enable placement
     const mapContainer = document.getElementById('map-container');
     if(mapContainer) {
@@ -137,5 +164,49 @@ function setupControls() {
             }
         });
         mapContainer.addEventListener('mouseleave', () => setPlacementMode(false));
+    }
+
+    // Map Editor Setup
+    const selectMapTool = document.getElementById('select-map-tool');
+    const toolHillOptions = document.getElementById('tool-hill-options');
+    const toolRoadOptions = document.getElementById('tool-road-options');
+
+    if(selectMapTool) {
+        selectMapTool.addEventListener('change', (e) => {
+            const val = e.target.value;
+            setActiveMapTool(val);
+            toolHillOptions.style.display = val === 'hill' ? 'block' : 'none';
+            toolRoadOptions.style.display = val === 'road' ? 'block' : 'none';
+        });
+    }
+
+    const btnClearMapData = document.getElementById('btn-clear-map-data');
+    if(btnClearMapData) {
+        btnClearMapData.addEventListener('click', () => {
+            if(confirm("Are you sure you want to clear all map features?")) {
+                mapData.hills = [];
+                mapData.roads = [];
+            }
+        });
+    }
+
+    // Connect Map Tab to active tool
+    const tabMapBtn = document.querySelector('[data-tab="tab-map"]');
+    if(tabMapBtn) {
+        tabMapBtn.addEventListener('click', () => {
+            if(selectMapTool) {
+                setActiveMapTool(selectMapTool.value);
+            }
+            setPlacementMode(false);
+        });
+    }
+
+    // Connect Place Tab to turn off active tool
+    const tabPlaceBtn = document.querySelector('[data-tab="tab-place"]');
+    if(tabPlaceBtn) {
+        tabPlaceBtn.addEventListener('click', () => {
+            setActiveMapTool('none');
+            setPlacementMode(true);
+        });
     }
 }

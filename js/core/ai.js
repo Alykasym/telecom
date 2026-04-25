@@ -76,8 +76,8 @@ export function suggestAdjustments() {
     let moves = 0;
 
     players.forEach(u => {
-        // Artillery & Snipers -> Seek High Ground
-        if(u.category === UNIT_CATEGORIES.ARTILLERY || u.weapon === WEAPON_TYPES.SMALL_ARMS && u.range > 1000) {
+        // Artillery, Snipers & AA/MANPADS -> Seek High Ground
+        if(u.category === UNIT_CATEGORIES.ARTILLERY || (u.weapon === WEAPON_TYPES.SMALL_ARMS && u.range > 1000) || u.weapon === WEAPON_TYPES.ANTI_AIR) {
             let currentElev = getElevationAt(u.x, u.y);
             if(currentElev < 2) {
                 let bestHill = mapData.hills.reduce((prev, curr) => {

@@ -5,8 +5,8 @@ export const MAP_CONFIG = {
     HEIGHT: 6000
 };
 
-// Represents static terrain features
-export const mapData = {
+// Represents mutable terrain features
+export let mapData = {
     hills: [
         // elevation represents height advantage (multiplier for LoS/Range)
         { x: 1500, y: 1500, radius: 400, elevation: 2 },

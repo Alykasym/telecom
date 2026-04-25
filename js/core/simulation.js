@@ -138,10 +138,14 @@ function calculateHitProbability(attacker, defender, distance) {
     if(rangeFalloff < 0) return 0; // Out of range entirely
 
     // Weapon vs Armor matrix
-    let armorFactor = 0.1;
+    let armorFactor = 0.05; // Base tiny chance
     if(attacker.weapon === WEAPON_TYPES.SMALL_ARMS) {
         if(defender.armor === ARMOR_CLASSES.UNARMORED) armorFactor = 0.8;
         if(defender.armor === ARMOR_CLASSES.LIGHT) armorFactor = 0.2;
+    } else if(attacker.weapon === WEAPON_TYPES.HEAVY_MG) {
+        if(defender.armor === ARMOR_CLASSES.UNARMORED) armorFactor = 0.9;
+        if(defender.armor === ARMOR_CLASSES.LIGHT) armorFactor = 0.6;
+        if(defender.armor === ARMOR_CLASSES.HEAVY) armorFactor = 0.1;
     } else if(attacker.weapon === WEAPON_TYPES.ANTI_ARMOR) {
         if(defender.armor === ARMOR_CLASSES.UNARMORED) armorFactor = 0.4;
         if(defender.armor === ARMOR_CLASSES.LIGHT) armorFactor = 0.9;
@@ -150,6 +154,17 @@ function calculateHitProbability(attacker, defender, distance) {
         if(defender.armor === ARMOR_CLASSES.UNARMORED) armorFactor = 1.0;
         if(defender.armor === ARMOR_CLASSES.LIGHT) armorFactor = 0.6;
         if(defender.armor === ARMOR_CLASSES.HEAVY) armorFactor = 0.3;
+    } else if(attacker.weapon === WEAPON_TYPES.ANTI_AIR) {
+        if(defender.category === UNIT_CATEGORIES.AIRCRAFT) armorFactor = 0.9;
+        else armorFactor = 0.1; // Very ineffective against ground targets
+    }
+
+    // Anti-Air targeting matrix checks
+    if(defender.category === UNIT_CATEGORIES.AIRCRAFT && attacker.weapon !== WEAPON_TYPES.ANTI_AIR) {
+        // Only specific weapons can easily hit aircraft
+        if(attacker.weapon === WEAPON_TYPES.HEAVY_MG) armorFactor *= 0.3;
+        else if(attacker.weapon === WEAPON_TYPES.SMALL_ARMS) armorFactor *= 0.1;
+        else armorFactor = 0; // Anti-armor and explosive generally can't hit flying aircraft
     }
 
     // Suppression penalty
@@ -185,7 +200,12 @@ function simulationTick() {
                 if(dist <= unit.detection * (unit.category === UNIT_CATEGORIES.AIRCRAFT ? 1 : getElevation(unit.x, unit.y)) && checkLineOfSight(unit, enemy)) {
                     // Score = Distance. Prioritize units we can actually hurt
                     let score = dist;
+
+                    // Logic for weapon mismatch vs target
                     if(unit.weapon === WEAPON_TYPES.SMALL_ARMS && enemy.armor === ARMOR_CLASSES.HEAVY) score += 10000; // Ignore heavy armor if small arms
+                    if(enemy.category === UNIT_CATEGORIES.AIRCRAFT && unit.weapon !== WEAPON_TYPES.ANTI_AIR && unit.weapon !== WEAPON_TYPES.HEAVY_MG) score += 20000; // Ignore aircraft if no AA/HMG
+                    if(unit.weapon === WEAPON_TYPES.ANTI_AIR && enemy.category !== UNIT_CATEGORIES.AIRCRAFT) score += 20000; // Anti-air ignores ground unless nothing else exists
+
                     if(dist > effRange) score += 5000; // Penalty for out of range
 
                     if(score < minScore) { minScore = score; bestTarget = enemy; }

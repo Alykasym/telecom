@@ -13,6 +13,15 @@
             <h2>Strategy Controls</h2>
 
             <div class="panel">
+                <h3>Scenario Data</h3>
+                <div class="button-group">
+                    <button id="btn-export-scenario">Export JSON</button>
+                    <button id="btn-import-scenario">Import JSON</button>
+                    <input type="file" id="file-import" accept=".json" style="display:none;">
+                </div>
+            </div>
+
+            <div class="panel">
                 <h3>Simulation Controls</h3>
                 <label>Mode:</label>
                 <select id="sim-mode">
@@ -36,11 +45,18 @@
                 <button id="btn-suggest-adjustments" class="action-btn">Suggest Adjustments</button>
             </div>
 
+            <div class="panel" id="unit-info-panel" style="display: none; border-color: #f39c12;">
+                <h3>Selected Unit</h3>
+                <div id="unit-info-content" style="font-size: 0.9rem; margin-bottom: 10px;"></div>
+                <button id="btn-delete-unit" style="background-color: #e74c3c; width: 100%;">Delete Unit</button>
+            </div>
+
             <div class="panel">
-                <h3>Unit Management</h3>
+                <h3>Editor Management</h3>
                 <div class="tabs">
                     <button class="tab-btn active" data-tab="tab-place">Place Units</button>
                     <button class="tab-btn" data-tab="tab-create">Custom Unit</button>
+                    <button class="tab-btn" data-tab="tab-map">Map Editor</button>
                 </div>
 
                 <div id="tab-place" class="tab-content active">
@@ -58,7 +74,15 @@
                     <label style="margin-top: 10px;">Count (Cluster Size):</label>
                     <input type="number" id="placement-count" value="1" min="1" max="50">
 
-                    <p class="help-text">Select faction, unit type, and count, then click on the map to place.</p>
+                    <label style="margin-top: 10px;">Formation Shape:</label>
+                    <select id="placement-formation">
+                        <option value="cluster">Random Cluster</option>
+                        <option value="line">Line Formation</option>
+                        <option value="wedge">Wedge Formation</option>
+                        <option value="column">Column Formation</option>
+                    </select>
+
+                    <p class="help-text">Select faction, unit type, count, and formation, then click on the map to place.</p>
                 </div>
 
                 <div id="tab-create" class="tab-content" style="display:none;">
@@ -79,9 +103,12 @@
                         </select>
                         <label>Weapon Lethality:</label>
                         <select id="cu-weapon">
+                            <option value="none">None (Unarmed)</option>
                             <option value="small_arms">Small Arms</option>
+                            <option value="heavy_mg">Heavy Machine Gun</option>
                             <option value="anti_armor">Anti-Armor</option>
                             <option value="explosive">Explosive (Artillery)</option>
+                            <option value="anti_air">Anti-Air Missiles</option>
                         </select>
 
                         <label>Firing Range (m):</label>
@@ -98,6 +125,34 @@
 
                         <button type="submit" style="margin-top:10px; width: 100%;">Save to Predefined</button>
                     </form>
+                </div>
+
+                <div id="tab-map" class="tab-content" style="display:none;">
+                    <label>Map Tool:</label>
+                    <select id="select-map-tool">
+                        <option value="none">None / Pan Map</option>
+                        <option value="hill">Add Hill</option>
+                        <option value="road">Add Road</option>
+                    </select>
+
+                    <div id="tool-hill-options" style="display:none; margin-top:10px;">
+                        <label>Hill Elevation (1-5):</label>
+                        <input type="number" id="map-hill-elevation" value="2" min="1" max="5" step="0.5">
+                        <label>Radius (m):</label>
+                        <input type="number" id="map-hill-radius" value="400" min="50" step="50">
+                        <p class="help-text">Click on the map to place a hill.</p>
+                    </div>
+
+                    <div id="tool-road-options" style="display:none; margin-top:10px;">
+                        <label>Road Type:</label>
+                        <select id="map-road-type">
+                            <option value="highway">Highway</option>
+                            <option value="dirt">Dirt Road</option>
+                        </select>
+                        <p class="help-text">Click to start road, click again to end.</p>
+                    </div>
+
+                    <button id="btn-clear-map-data" style="margin-top: 10px; background-color: #e74c3c; width: 100%;">Clear All Hills & Roads</button>
                 </div>
             </div>
 
