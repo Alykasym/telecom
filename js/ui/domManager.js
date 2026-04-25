@@ -105,16 +105,28 @@ function setupControls() {
         });
     }
 
-    document.getElementById('btn-start-sim')?.addEventListener('click', startSimulation);
-    document.getElementById('btn-stop-sim')?.addEventListener('click', () => stopSimulation("Manually Stopped"));
-    document.getElementById('btn-reset-sim')?.addEventListener('click', resetSimulation);
-    document.getElementById('btn-close-report')?.addEventListener('click', () => {
-        document.getElementById('report-panel').style.display = 'none';
-    });
+    const btnStartSim = document.getElementById('btn-start-sim');
+    if (btnStartSim) btnStartSim.addEventListener('click', startSimulation);
+
+    const btnStopSim = document.getElementById('btn-stop-sim');
+    if (btnStopSim) btnStopSim.addEventListener('click', () => stopSimulation("Manually Stopped"));
+
+    const btnResetSim = document.getElementById('btn-reset-sim');
+    if (btnResetSim) btnResetSim.addEventListener('click', resetSimulation);
+
+    const btnCloseReport = document.getElementById('btn-close-report');
+    if (btnCloseReport) {
+        btnCloseReport.addEventListener('click', () => {
+            document.getElementById('report-panel').style.display = 'none';
+        });
+    }
 
     // AI controls
-    document.getElementById('btn-auto-place')?.addEventListener('click', autoPlaceUnits);
-    document.getElementById('btn-suggest-adjustments')?.addEventListener('click', suggestAdjustments);
+    const btnAutoPlace = document.getElementById('btn-auto-place');
+    if (btnAutoPlace) btnAutoPlace.addEventListener('click', autoPlaceUnits);
+
+    const btnSuggest = document.getElementById('btn-suggest-adjustments');
+    if (btnSuggest) btnSuggest.addEventListener('click', suggestAdjustments);
 
     // Map hover to enable placement
     const mapContainer = document.getElementById('map-container');

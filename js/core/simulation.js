@@ -268,12 +268,14 @@ function simulationTick() {
 
     let pAlive = placedUnits.filter(u => u.faction === 'player' && u.state !== 'destroyed').length;
     let eAlive = placedUnits.filter(u => u.faction === 'enemy' && u.state !== 'destroyed').length;
-    let mode = document.getElementById('sim-mode')?.value;
+    const modeSelect = document.getElementById('sim-mode');
+    let mode = modeSelect ? modeSelect.value : null;
 
     if(pAlive === 0 || eAlive === 0) {
         stopSimulation(pAlive === 0 ? "Player Force Neutralized" : "Enemy Force Neutralized");
     } else if (mode === 'time-limit') {
-        let maxHours = parseFloat(document.getElementById('sim-time-limit')?.value || 2);
+        const simTimeLimit = document.getElementById('sim-time-limit');
+        let maxHours = simTimeLimit ? parseFloat(simTimeLimit.value || 2) : 2;
         if(simTime >= maxHours * 3600) stopSimulation("Time Limit Reached");
     }
 }
